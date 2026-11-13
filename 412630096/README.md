@@ -3,11 +3,11 @@
 班級：資管系4C｜座號：5
 
 ## 編譯
-在本目錄執行三次（Windows 需安裝 MiKTeX、XeLaTeX 及新細明體）：
+在本目錄執行三次（Windows 需安裝 MiKTeX、XeLaTeX 及標楷體）：
 ```
 xelatex -interaction=nonstopmode -halt-on-error -jobname=412630096 main.tex
 ```
-輸出為 412630096.pdf。中文使用 PMingLiU，其他系統請替換為已安裝的繁體中文字型。
+輸出為 412630096.pdf。中文使用 DFKai-SB，其他系統請替換為已安裝的繁體中文字型。
 
 ## 執行
 Python 3.10+，僅使用標準函式庫，不需 pip 套件。
@@ -26,13 +26,18 @@ python -m unittest -v test_app.py
 ```
 測試使用假憑證及 mock，不會發送 LINE 訊息。真實 LINE 帳號、token、外部 HTTPS 通道及手機端回覆需由本人完成實測。
 
-## GitHub
-專案在上層工作區 Git 中版本控管。確認個人 GitHub 儲存庫後，在上層目錄執行：
+## GitHub 與版本紀錄
+已上傳至 https://github.com/Charlotte1107/professional-layout-design 。
+此工作區已設定 origin，後續更新請在儲存庫根目錄執行：
+```powershell
+git add 412630096
+git commit -m '更新：說明本次實際變更'
+git push origin main
 ```
-git remote add origin https://github.com/Charlotte1107/professional-layout-design.git
-git push -u origin HEAD
-```
-上述是操作說明，不代表已上傳成功。不可提交真正的 secret、token 或 .env。
-ZIP 包含學號資料夾與交付檔案；Git 版本歷史另以學號資料夾中的 version-history.txt 保存可讀紀錄，repository.bundle 保存可還原的 Git 歷史。
+首次下載可執行 `git clone https://github.com/Charlotte1107/professional-layout-design.git`，再進入其下的學號資料夾編譯與測試，無須重複新增 origin。
 
-指定作業儲存庫：https://github.com/Charlotte1107/professional-layout-design
+ZIP 包含學號資料夾、PDF、LaTeX、程式與驗證紀錄；version-history.txt 與 repository.bundle 保存本機版本歷史。bundle 可用 `git clone repository.bundle restored-repository` 還原。
+
+## 排版與驗收
+中文採標楷體，封面、評分表、單行章標題與頁尾頁碼參照題目 PDF，程式標題置頂並自動產生行號。英數程式碼保留等寬字型。
+17 項測試涵蓋核心邏輯、本機 HTTP 接收與錯誤紀錄；測試不會向真實 LINE 發送訊息。真實 Verify、手機回覆與截圖仍待本人完成，PDF 已列出可操作的驗收程序。

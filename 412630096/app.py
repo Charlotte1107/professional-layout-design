@@ -64,9 +64,13 @@ def process_webhook(body, signature, secret, token, sender=reply_text):
             continue
         try:
             sender(token, reply_token, text)
-        except (HTTPError, URLError, TimeoutError, OSError):
-            # Do not log user messages, credentials, or reply tokens.
-            LOG.error("LINE reply request failed")
+        except HTTPError as exc:
+            # Log status only: response bodies can contain private data.
+            LOG.error("LINE reply HTTP status=%s", exc.code)
+            return 502
+        except (URLError, TimeoutError, OSError):
+            # Never log exception text, user messages, or credentials.
+            LOG.error("LINE reply connection failed")
             return 502
     return 200
 

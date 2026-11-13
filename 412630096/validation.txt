@@ -1,11 +1,13 @@
-交付驗證紀錄（2026-11-13）
+交付驗證紀錄（2026-11-13，優化版）
 作者：利蓁琳；學號：412630096；班級：資管系4C；座號：5。
-XeLaTeX 連續三次編譯成功；PDF 共 29 頁，A4。
-四種目錄均有內容；沒有未定義交叉引用、缺字或超出行寬警告。
-封面、正文與程式碼頁已轉為圖片檢查；程式碼有自動行號。
-Python 離線測試：9 項全部通過，詳見 test-results.txt。
-最後一章以 lstinputlisting 載入完整 main.tex，並自動加入程式目錄。
-官方流程參考網址已列於 PDF 與 README。
-未使用真實 LINE 憑證，尚未完成外部 Webhook 與手機端實測。
-GitHub 指定位置：https://github.com/Charlotte1107/professional-layout-design
-GitHub：已成功推送並核對遠端 main 與本機提交相同。
+中文主文、標題及程式清單中的中文均使用標楷體 DFKai-SB；PDF 已嵌入 DFKaiShu 字型。
+版面參考使用者提供的 115期中考題.pdf：黑白封面、評分表、單行章標題、置中頁碼及集中目錄。
+XeLaTeX 連續三次編譯成功；PDF 共 26 頁，A4。
+沒有超出行寬、未定義交叉引用、缺字或字型形狀替代警告。
+四種目錄皆有內容；最後一章完整列出本文件 LaTeX 原始碼。
+程式碼字級調為 9.5pt、標題置頂、自動行號，新增實際行號範圍與逐段解說表。
+測試共 17 項通過，含核心邏輯、本機 HTTP 接收、錯誤狀態與敏感資訊紀錄檢查。
+HTTP 錯誤僅記錄狀態碼；連線錯誤獨立分類，不輸出敏感例外原文。
+README 已更新上傳狀態、首次下載與後續推送方式。
+尚未執行真實 LINE Verify、手機回覆與操作截圖；PDF 已列出待實測程序。
+GitHub：https://github.com/Charlotte1107/professional-layout-design

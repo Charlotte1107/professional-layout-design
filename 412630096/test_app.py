@@ -4,8 +4,11 @@ import hashlib
 import hmac
 import json
 import unittest
+import threading
+from http.client import HTTPConnection
+from http.server import HTTPServer
 from unittest.mock import Mock, patch
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 import app
 
 SECRET = "test-secret"
@@ -79,6 +82,62 @@ class WebhookTests(unittest.TestCase):
         self.assertEqual(req.get_header("Authorization"), "Bearer " + TOKEN)
         self.assertEqual(json.loads(req.data)["messages"][0]["text"], "你好")
         self.assertEqual(opener.call_args.kwargs["timeout"], 10)
+
+
+class HTTPReceiverTests(unittest.TestCase):
+    def send(self, path="/callback", body=b"{}", headers=None):
+        handler = app.make_handler(SECRET, TOKEN)
+        handler.log_message = lambda *args: None
+        with HTTPServer(("127.0.0.1", 0), handler) as server:
+            server.timeout = 3
+            worker = threading.Thread(target=server.handle_request, daemon=True)
+            worker.start()
+            connection = HTTPConnection(*server.server_address, timeout=3)
+            try:
+                connection.request("POST", path, body=body, headers=headers or {})
+                response = connection.getresponse()
+                status, data = response.status, response.read()
+            finally:
+                connection.close()
+                worker.join(timeout=4)
+            self.assertFalse(worker.is_alive())
+            return status, data
+
+    def test_http_valid_verify(self):
+        body, sig = signed({"events": []})
+        self.assertEqual(self.send(body=body, headers={"X-Line-Signature": sig}),
+                         (200, b"OK"))
+
+    def test_http_wrong_path(self):
+        self.assertEqual(self.send(path="/wrong")[0], 404)
+
+    def test_http_invalid_signature(self):
+        self.assertEqual(self.send()[0], 400)
+
+    def test_http_oversized(self):
+        self.assertEqual(self.send(headers={"Content-Length": "1048577"})[0], 413)
+
+    def test_http_invalid_length(self):
+        self.assertEqual(self.send(headers={"Content-Length": "bad"})[0], 400)
+
+    def test_http_empty_body(self):
+        self.assertEqual(self.send(body=b"")[0], 413)
+
+    def test_http_reply_failure(self):
+        body, sig = signed({"events": [event()]})
+        with patch("app.urlopen", side_effect=URLError("offline")):
+            with self.assertLogs(app.LOG, level="ERROR"):
+                self.assertEqual(self.send(body=body, headers={
+                    "X-Line-Signature": sig}), (502, b"Rejected"))
+
+    def test_api_error_log_contains_only_status(self):
+        body, sig = signed({"events": [event()]})
+        sender = Mock(side_effect=HTTPError(app.REPLY_URL, 401, TOKEN, {}, None))
+        with self.assertLogs(app.LOG, level="ERROR") as captured:
+            self.assertEqual(app.process_webhook(
+                body, sig, SECRET, TOKEN, sender), 502)
+        self.assertIn("401", " ".join(captured.output))
+        self.assertNotIn(TOKEN, " ".join(captured.output))
 
 
 if __name__ == "__main__":

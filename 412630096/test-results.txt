@@ -1,14 +1,20 @@
-test_empty_events_verify (test_app.WebhookTests.test_empty_events_verify) ... ok
-test_invalid_structure (test_app.WebhookTests.test_invalid_structure) ... ok
-test_missing_signature_rejected (test_app.WebhookTests.test_missing_signature_rejected) ... ok
-test_network_error_is_502 (test_app.WebhookTests.test_network_error_is_502) ... ok
-test_non_text_and_standby_ignored (test_app.WebhookTests.test_non_text_and_standby_ignored) ... ok
-test_outgoing_reply_request (test_app.WebhookTests.test_outgoing_reply_request) ... ok
-test_signed_invalid_json (test_app.WebhookTests.test_signed_invalid_json) ... ok
-test_signed_text_is_replied (test_app.WebhookTests.test_signed_text_is_replied) ... ok
-test_tampered_body_never_replies (test_app.WebhookTests.test_tampered_body_never_replies) ... ok
-
-----------------------------------------------------------------------
-Ran 9 tests in 0.002s
-
-OK
+test_api_error_log_contains_only_status (test_app.HTTPReceiverTests.test_api_error_log_contains_only_status) ... ok
+test_http_empty_body (test_app.HTTPReceiverTests.test_http_empty_body) ... ok
+test_http_invalid_length (test_app.HTTPReceiverTests.test_http_invalid_length) ... ok
+test_http_invalid_signature (test_app.HTTPReceiverTests.test_http_invalid_signature) ... ok
+test_http_oversized (test_app.HTTPReceiverTests.test_http_oversized) ... ok
+test_http_reply_failure (test_app.HTTPReceiverTests.test_http_reply_failure) ... ok
+test_http_valid_verify (test_app.HTTPReceiverTests.test_http_valid_verify) ... ok
+test_http_wrong_path (test_app.HTTPReceiverTests.test_http_wrong_path) ... ok
+test_empty_events_verify (test_app.WebhookTests.test_empty_events_verify) ... ok
+test_invalid_structure (test_app.WebhookTests.test_invalid_structure) ... ok
+test_missing_signature_rejected (test_app.WebhookTests.test_missing_signature_rejected) ... ok
+test_network_error_is_502 (test_app.WebhookTests.test_network_error_is_502) ... ok
+test_non_text_and_standby_ignored (test_app.WebhookTests.test_non_text_and_standby_ignored) ... ok
+test_outgoing_reply_request (test_app.WebhookTests.test_outgoing_reply_request) ... ok
+test_signed_invalid_json (test_app.WebhookTests.test_signed_invalid_json) ... ok
+test_signed_text_is_replied (test_app.WebhookTests.test_signed_text_is_replied) ... ok
+test_tampered_body_never_replies (test_app.WebhookTests.test_tampered_body_never_replies) ... ok
+----------------------------------------------------------------------
+Ran 17 tests in 0.044s
+OK

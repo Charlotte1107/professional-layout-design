@@ -1,17 +1,17 @@
-\documentclass[12pt,a4paper]{report}
+﻿\documentclass[12pt,a4paper]{report}
 \usepackage{fontspec}
 \usepackage{xeCJK}
-\setCJKmainfont[AutoFakeBold=2]{PMingLiU}
-\setCJKsansfont{Microsoft JhengHei}
-\setCJKmonofont{PMingLiU}
-\usepackage[margin=25mm,headheight=16pt]{geometry}
+\setCJKmainfont[AutoFakeBold=2]{DFKai-SB}
+\setCJKsansfont[AutoFakeBold=2]{DFKai-SB}
+\setCJKmonofont{DFKai-SB}
+\usepackage[top=22mm,bottom=22mm,left=22mm,right=22mm]{geometry}
 \usepackage{graphicx,xcolor,booktabs,longtable,array}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning}
 \usepackage{listings}
-\usepackage{fancyhdr}
+
 \usepackage{xurl}
-\usepackage[unicode,colorlinks=true,linkcolor=teal,urlcolor=blue]{hyperref}
+\usepackage[unicode,hidelinks]{hyperref}
 \definecolor{linegreen}{HTML}{07883F}
 \definecolor{codebg}{HTML}{F3F6F5}
 \renewcommand{\contentsname}{章節目錄}
@@ -22,47 +22,69 @@
 \renewcommand{\figurename}{圖}
 \renewcommand{\tablename}{表}
 \renewcommand{\chaptername}{章}
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[L]{\small LINE Messaging API 技術文件}
-\fancyhead[R]{\small 412630096 利蓁琳}
-\fancyfoot[C]{\thepage}
+\pagestyle{plain}
 \setlength{\parindent}{2em}
-\setlength{\parskip}{0.45em}
-\linespread{1.18}
-\lstset{basicstyle=\ttfamily\scriptsize,numbers=left,numberstyle=\tiny\color{gray},
- numbersep=8pt,stepnumber=1,breaklines=true,breakatwhitespace=false,
- columns=fullflexible,keepspaces=true,showstringspaces=false,
- backgroundcolor=\color{codebg},frame=single,rulecolor=\color{linegreen},
- keywordstyle=\color{blue},commentstyle=\color{linegreen},
- stringstyle=\color{purple},captionpos=b,tabsize=4}
+\setlength{\parskip}{0.3em}
+\linespread{1.12}
+\setlength{\emergencystretch}{1em}
+\setlength{\emergencystretch}{1em}
+\setlength{\emergencystretch}{1em}
+% Match the supplied exam: inline chapter number/title, black text, plain footer.
+\makeatletter
+\def\@makechapterhead#1{\vspace*{0pt}{\parindent\z@\raggedright
+ \normalfont\Large\bfseries 第\thechapter 章\quad #1\par\nobreak\vskip 22pt}}
+\def\@makeschapterhead#1{\vspace*{0pt}{\parindent\z@\raggedright
+ \normalfont\Large\bfseries #1\par\nobreak\vskip 18pt}}
+\makeatother
+\lstset{basicstyle=\ttfamily\fontsize{9.5}{12}\selectfont,
+ numbers=left,numberstyle=\tiny,numbersep=8pt,stepnumber=1,
+ breaklines=true,breakatwhitespace=false,columns=fullflexible,
+ keepspaces=true,showstringspaces=false,frame=none,
+ keywordstyle=\bfseries,commentstyle=\normalfont\ttfamily,stringstyle=\normalfont\ttfamily,
+ captionpos=t,tabsize=4,aboveskip=12pt,belowskip=12pt}
 \hypersetup{pdftitle={LINE Messaging API 註冊申請與實作},pdfauthor={利蓁琳}}
 \begin{document}
 \begin{titlepage}
 \centering
-\vspace*{22mm}
-{\color{linegreen}\rule{\textwidth}{2pt}}\par
-\vspace{12mm}
-{\Large 專業排版與設計・期中技術文件\par}
-\vspace{12mm}
-{\Huge\bfseries LINE Messaging API\par}
-\vspace{5mm}
-{\LARGE 註冊申請、Webhook 設定與回聲機器人\par}
-\vspace{17mm}
-{\large 從官方帳號啟用到簽章驗證的完整實作\par}
-\vspace{20mm}
+\vspace*{17mm}
+{\LARGE\bfseries 專業排版與設計 期中作業\par}
+\vspace{15mm}
+{\LARGE LINE Messaging API 教學文件製作\par}
+\vspace{15mm}
+\renewcommand{\arraystretch}{1.6}
 \begin{tabular}{rl}
-學號：&412630096\\[5mm]
-姓名：&利蓁琳\\[5mm]
-班級：&資管系4C\\[5mm]
-座號：&5
+座號：&\makebox[44mm][l]{5}\\
+班級：&\makebox[44mm][l]{資管系4C}\\
+學號：&\makebox[44mm][l]{412630096}\\
+姓名：&\makebox[44mm][l]{利蓁琳}
 \end{tabular}
+\vspace{16mm}
+\par\noindent
+{\small\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{|p{44mm}|p{10mm}|p{10mm}|p{77mm}|}\hline
+評分項目 & 配分 & 得分 & 評分說明\\\hline
+\LaTeX 頁數達標 & 10\% & & 文件達五頁以上，內容充實、有條理。\\\hline
+\LaTeX 排版美觀與結構 & 15\% & & 章節層次清晰，目錄可正常顯示。\\\hline
+\LaTeX 進行 GitHub 版本控管 & 15\% & & 文件成功上傳 GitHub，至少有三筆有實質變更的提交。\\\hline
+\LaTeX 格式正確 & 20\% & & 可編譯 PDF，段落、圖片與程式碼排版完善，行號自動產生。\\\hline
+\LaTeX 內容完整性 & 20\% & & 完整描述註冊過程與設定步驟，具技術深度。\\\hline
+\LaTeX 程式碼品質與解說 & 20\% & & 程式碼可運作、註解充分，並標註行號。\\\hline
+\end{tabular}}
 \vfill
 {\large 2026 年 11 月 13 日\par}
-\vspace{8mm}
-{\small XeLaTeX・Python 3 標準函式庫・Git 版本控管\par}
 \end{titlepage}
-\pagenumbering{roman}
+\setcounter{page}{2}
+\tableofcontents
+\clearpage
+\begingroup
+\let\clearpage\relax
+\listoffigures
+\vspace{12mm}
+\listoftables
+\vspace{12mm}
+\lstlistoflistings
+\endgroup
+\clearpage
 \chapter*{摘要}
 \addcontentsline{toc}{chapter}{摘要}
 本文件以繁體中文說明 LINE Messaging API 的開通、憑證管理、Webhook 設定，以及接收文字後原文回覆的 Echo Bot。範例直接使用 Python 標準函式庫呼叫 REST API，讓讀者能清楚觀察 HTTP、JSON 與 HMAC 簽章之間的關係，不需安裝第三方 SDK。
@@ -72,13 +94,7 @@
 \textbf{實作範圍：}本交付包含可執行程式與離線測試，不含使用者個人的 LINE 帳號、真實憑證、已部署服務或手機端成功截圖。文件中的驗收步驟供取得憑證後操作；不得將預期結果解讀為已完成線上驗證。班級為資管系4C，座號為5。
 
 \textbf{版本基準：}註冊流程於 2026 年 11 月 13 日查閱 LINE 官方文件。服務畫面與方案可能改版，實際名稱以官方管理介面為準。參考資料集中於倒數第二章，最後一章列出本文件完整 LaTeX 原始碼。
-\tableofcontents
 \clearpage
-\listoffigures
-\listoftables
-\lstlistoflistings
-\clearpage
-\pagenumbering{arabic}
 \chapter{Messaging API 簡介與架構}
 \section{用途與基本名詞}
 Messaging API 是讓程式與 LINE 官方帳號互動的介面。當使用者加入好友、傳送訊息或操作互動元件時，LINE 平台可將事件送至指定伺服器；伺服器依商業邏輯呼叫 API 回覆。它適合校園問答、預約通知、訂單進度查詢與活動資訊服務。
@@ -99,7 +115,7 @@ Messaging API & 檢查 access token 並將回覆送回聊天室\\\bottomrule
 Webhook 是由 LINE 主動發起的 HTTP POST；回覆 API 則由機器人主動向 LINE 發起 HTTPS 請求。兩者是不同方向的連線。將 Webhook 回傳為 200 僅表示事件已被接收，不會自動產生聊天訊息，程式仍須呼叫回覆端點。
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[node distance=9mm,box/.style={draw=linegreen,rounded corners,align=center,text width=97mm,minimum height=10mm},>=Stealth]
+\begin{tikzpicture}[node distance=9mm,box/.style={draw=black,align=center,text width=97mm,minimum height=10mm},>=Stealth]
 \node[box] (u) {使用者在 LINE 傳送文字};
 \node[box,below=of u] (l) {LINE 平台：POST 事件與簽章};
 \node[box,below=of l] (t) {公開 HTTPS 網址／ngrok};
@@ -185,6 +201,24 @@ python app.py
 \section{接收與回覆程式}
 下列程式直接從交付的 app.py 匯入，左側行號由 listings 自動產生。註解採英文以方便程式碼跨環境顯示，本節以繁體中文補足解說。
 \lstinputlisting[language=Python,caption={app.py：完整 Echo Bot},label={lst:app}]{app.py}
+\section{程式行號與逐段解說}
+表中行號與程式碼 \ref{lst:app} 對照。可先閱讀核心事件處理，再追蹤驗證與回覆函式，最後確認 HTTP 接收端如何串接。
+\begin{longtable}{p{17mm}p{26mm}p{105mm}}
+\caption{app.py 行號與處理責任對照}\\
+\toprule 行號 & 功能 & 說明\\\midrule\endfirsthead
+\toprule 行號 & 功能 & 說明\\\midrule\endhead
+16--22 & 簽章驗證 & 使用 secret 對原始 bytes 計算 HMAC-SHA256，再以固定時間比較驗證 Base64 簽章；此時尚未解析 JSON。\\
+23--34 & 發送回覆 & 將文字與 replyToken 編為 JSON，於 Authorization 加入 access token，設定十秒逾時並呼叫 Reply API。\\
+35--77 & 事件處理 & 先驗證再解析，略過非文字及 standby 事件；空事件回覆 200，API 錯誤回覆 502。\\
+78--111 & HTTP 接收 & 限制路徑、內容長度及讀取時間，將原始 body 與標頭交給核心函式，再明確回傳 HTTP 狀態。\\
+112--129 & 啟動與關閉 & 檢查環境變數後只監聽本機，配合 HTTPS 通道；按 Ctrl+C 時釋放伺服器資源。\\
+\bottomrule
+\end{longtable}
+\subsection{依事件追蹤資料流}
+事件進入核心函式後，先驗證來源，再解析事件陣列。每筆事件必須是文字訊息且具有 replyToken，才將文字交給 reply\_text。收到空陣列時迴圈不執行，仍回傳 200，因此能接受平台的驗證請求。
+\subsection{如何根據紀錄定位問題}
+API 回傳 HTTP 錯誤時，僅記錄狀態碼。例如 401 可優先檢查 access token，400 可檢查請求參數及 replyToken；連線失敗則記錄 connection failed。接收端皆回傳 502 表示上游回覆未完成，詳細分類應查看伺服器紀錄。程式不輸出 API 回應 body 或例外原文，以避免敏感資訊進入紀錄。
+
 \section{錯誤處理與部署限制}
 請求路徑限定為 /callback，輸入大小上限為 1 MiB；HTTP body 讀取與對外 API 皆設逾時。錯誤簽章及錯誤資料格式回傳 400。憑證缺漏時於啟動階段中止，避免服務啟動後才發現設定錯誤。
 
@@ -192,7 +226,7 @@ python app.py
 \clearpage
 \chapter{測試、排錯與延伸應用}
 \section{離線測試與線上測試的區別}
-執行 \texttt{python -m unittest -v test\_app.py}，測試以假 secret 計算簽章，以 mock 取代對外傳訊，不需 LINE 憑證。涵蓋正常文字回覆、內容遭竄改、缺少簽章、空事件、非文字與 standby 事件、錯誤 JSON 結構、無效 JSON、網路錯誤及輸出請求格式。
+執行 \texttt{python -m unittest -v test\_app.py}，測試以假 secret 計算簽章，以 mock 取代對外傳訊，不需 LINE 憑證。涵蓋正常文字回覆、內容遭竄改、缺少簽章、空事件、非文字與 standby 事件、錯誤 JSON 結構、無效 JSON、網路錯誤及輸出請求格式。另以本機 HTTPServer 與實際 HTTP POST 驗證路徑錯誤、空 body、大小限制、無效長度、無效簽章、有效驗證請求與上游失敗，並確認錯誤紀錄只含 HTTP 狀態碼。共 17 項測試，均不使用真實憑證。
 
 離線通過表示核心邏輯符合這些測試案例，仍須以真實帳號、有效憑證、公開 HTTPS 與手機訊息完成端對端驗收。不得以 mock 成功取代真實串接證據。
 \begin{table}[htbp]
@@ -207,6 +241,15 @@ python app.py
 無效 access token & API 失敗，接收端回覆 502\\\bottomrule
 \end{tabular}
 \end{table}
+\section{線上實測與證據紀錄}
+以下項目需由本人登入 LINE 平台並實際操作，尚未執行。完成後可補入去除敏感資訊的截圖，並記錄時間、操作與觀察結果。
+\begin{enumerate}
+\item Channel 與 Webhook 設定：擷取 API 已啟用及 Use webhook 設定畫面，遮蔽 secret、token 與不需公開的識別資料。
+\item Verify 成功：確認網址含 /callback 且顯示成功，記錄測試時間。
+\item 手機端文字回覆：傳送一則文字，截取使用者輸入與相同回覆，確認未發生重複回覆。
+\item 非文字測試：傳送圖片，確認伺服器正常接收且未產生文字回聲。
+\end{enumerate}
+上述是待執行的驗收程序；隨附測試紀錄只證明離線與本機 HTTP 測試結果。
 \section{常見問題排查}
 \begin{longtable}{p{33mm}p{48mm}p{50mm}}
 \caption{Webhook 常見錯誤與處理方式}\label{tab:debug}\\
@@ -231,7 +274,7 @@ Rich Menu 在聊天畫面提供固定入口，適合查詢、預約與客服。F
 \begin{lstlisting}[caption={XeLaTeX 編譯命令},label={lst:compile}]
 xelatex -interaction=nonstopmode -halt-on-error -jobname=412630096 main.tex
 \end{lstlisting}
-本文件使用 xeCJK 與 PMingLiU 顯示繁體中文，listings 產生程式行號，TikZ 繪製架構圖，hyperref 建立目錄與交叉引用。若更換作業系統，請將字型名稱改為已安裝且可顯示繁體中文的字型後重新編譯。
+本文件使用 xeCJK 與標楷體（DFKai-SB）顯示繁體中文，listings 產生程式行號，TikZ 繪製架構圖，hyperref 建立目錄與交叉引用。若更換作業系統，請將字型名稱改為已安裝且可顯示繁體中文的字型後重新編譯。
 \section{Git 與 GitHub 交付}
 本機以功能分段提交：先建立文件架構與執行說明，再加入機器人與測試，最後完成教學排版及驗證。這些提交包含實際內容變更，不使用空提交湊數。本作業指定 GitHub 儲存庫為 Charlotte1107/professional-layout-design。完成編譯與驗證後，將本機提交推送至該儲存庫，並核對遠端分支與本機版本一致。
 
@@ -251,3 +294,4 @@ version-history.txt 記錄實際本機提交，repository.bundle 保存可還原
 本章使用 lstinputlisting 直接載入 main.tex，讓實際排版來源可供查核。載入的是文字內容，不會遞迴執行其中指令；標題會自動加入程式目錄。修改本文後重新編譯，即可同步更新原始碼清單。
 \lstinputlisting[language={[LaTeX]TeX},caption={main.tex：本文件完整 LaTeX 原始碼},label={lst:source}]{main.tex}
 \end{document}
+
