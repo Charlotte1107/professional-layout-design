@@ -1,0 +1,252 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\setCJKmainfont{PMingLiU}
+\setCJKsansfont{Microsoft JhengHei}
+\setCJKmonofont{PMingLiU}
+\usepackage[margin=25mm,headheight=16pt]{geometry}
+\usepackage{graphicx,xcolor,booktabs,longtable,array}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage[unicode,colorlinks=true,linkcolor=teal,urlcolor=blue]{hyperref}
+\definecolor{linegreen}{HTML}{07883F}
+\definecolor{codebg}{HTML}{F3F6F5}
+\renewcommand{\contentsname}{章節目錄}
+\renewcommand{\listfigurename}{圖目錄}
+\renewcommand{\listtablename}{表目錄}
+\renewcommand{\lstlistlistingname}{程式目錄}
+\renewcommand{\lstlistingname}{程式碼}
+\renewcommand{\figurename}{圖}
+\renewcommand{\tablename}{表}
+\renewcommand{\chaptername}{章}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small LINE Messaging API 技術文件}
+\fancyhead[R]{\small 412630096 利蓁琳}
+\fancyfoot[C]{\thepage}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.45em}
+\linespread{1.18}
+\lstset{basicstyle=\ttfamily\scriptsize,numbers=left,numberstyle=\tiny\color{gray},
+ numbersep=8pt,stepnumber=1,breaklines=true,breakatwhitespace=false,
+ columns=fullflexible,keepspaces=true,showstringspaces=false,
+ backgroundcolor=\color{codebg},frame=single,rulecolor=\color{linegreen},
+ keywordstyle=\color{blue},commentstyle=\color{linegreen},
+ stringstyle=\color{purple},captionpos=b,tabsize=4}
+\hypersetup{pdftitle={LINE Messaging API 註冊申請與實作},pdfauthor={利蓁琳}}
+\begin{document}
+\begin{titlepage}
+\centering
+\vspace*{22mm}
+{\color{linegreen}\rule{\textwidth}{2pt}}\par
+\vspace{12mm}
+{\Large 專業排版與設計・期中技術文件\par}
+\vspace{12mm}
+{\Huge\bfseries LINE Messaging API\par}
+\vspace{5mm}
+{\LARGE 註冊申請、Webhook 設定與回聲機器人\par}
+\vspace{17mm}
+{\large 從官方帳號啟用到簽章驗證的完整實作\par}
+\vspace{20mm}
+\begin{tabular}{rl}
+學號：&412630096\\[5mm]
+姓名：&利蓁琳\\[5mm]
+班級：&\underline{\hspace{45mm}}\\[5mm]
+座號：&\underline{\hspace{45mm}}
+\end{tabular}
+\vfill
+{\large 2026 年 11 月 13 日\par}
+\vspace{8mm}
+{\small XeLaTeX・Python 3 標準函式庫・Git 版本控管\par}
+\end{titlepage}
+\pagenumbering{roman}
+\chapter*{摘要}
+\addcontentsline{toc}{chapter}{摘要}
+本文件以繁體中文說明 LINE Messaging API 的開通、憑證管理、Webhook 設定，以及接收文字後原文回覆的 Echo Bot。範例直接使用 Python 標準函式庫呼叫 REST API，讓讀者能清楚觀察 HTTP、JSON 與 HMAC 簽章之間的關係，不需安裝第三方 SDK。
+
+閱讀順序依實際操作排列：先辨識帳號、Provider 與 Channel，再建立官方帳號並啟用 API，接著設定 secret、token 與 HTTPS 網址，最後啟動程式並執行測試。文件提供流程圖、設定表、錯誤排查表，以及自動產生行號的完整程式碼。
+
+\textbf{實作範圍：}本交付包含可執行程式與離線測試，不含使用者個人的 LINE 帳號、真實憑證、已部署服務或手機端成功截圖。文件中的驗收步驟供取得憑證後操作；不得將預期結果解讀為已完成線上驗證。班級與座號需由本人補填。
+
+\textbf{版本基準：}註冊流程於 2026 年 11 月 13 日查閱 LINE 官方文件。服務畫面與方案可能改版，實際名稱以官方管理介面為準。參考資料集中於倒數第二章，最後一章列出本文件完整 LaTeX 原始碼。
+\tableofcontents
+\clearpage
+\listoffigures
+\listoftables
+\lstlistoflistings
+\clearpage
+\pagenumbering{arabic}
+\chapter{Messaging API 簡介與架構}
+\section{用途與基本名詞}
+Messaging API 是讓程式與 LINE 官方帳號互動的介面。當使用者加入好友、傳送訊息或操作互動元件時，LINE 平台可將事件送至指定伺服器；伺服器依商業邏輯呼叫 API 回覆。它適合校園問答、預約通知、訂單進度查詢與活動資訊服務。
+
+LINE 帳號供使用者登入；Business ID 用於官方帳號相關服務；官方帳號是使用者加入好友並聊天的對象。Provider 表示服務提供者，Channel 則是該服務使用 LINE 平台功能的設定單位。開發者須管理 Channel 的權限、密鑰與端點。
+\begin{table}[htbp]
+\centering\caption{主要元件與責任}\label{tab:components}
+\begin{tabular}{p{32mm}p{100mm}}\toprule
+元件 & 本範例的責任\\\midrule
+使用者 & 加入好友並傳送文字\\
+LINE 平台 & 產生事件、附上簽章並傳送 Webhook\\
+HTTPS 通道 & 將公開網址導向本機 8000 埠\\
+Python 伺服器 & 驗證簽章、解析事件、發送回覆請求\\
+Messaging API & 檢查 access token 並將回覆送回聊天室\\\bottomrule
+\end{tabular}
+\end{table}
+\section{Webhook 與回覆的關係}
+Webhook 是由 LINE 主動發起的 HTTP POST；回覆 API 則由機器人主動向 LINE 發起 HTTPS 請求。兩者是不同方向的連線。將 Webhook 回傳為 200 僅表示事件已被接收，不會自動產生聊天訊息，程式仍須呼叫回覆端點。
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=9mm,box/.style={draw=linegreen,rounded corners,align=center,text width=97mm,minimum height=10mm},>=Stealth]
+\node[box] (u) {使用者在 LINE 傳送文字};
+\node[box,below=of u] (l) {LINE 平台：POST 事件與簽章};
+\node[box,below=of l] (t) {公開 HTTPS 網址／ngrok};
+\node[box,below=of t] (s) {本機 /callback：驗證原始位元組、解析 JSON};
+\node[box,below=of s] (r) {呼叫 Reply API，LINE 將文字送回使用者};
+\draw[->] (u)--(l);\draw[->] (l)--(t);\draw[->] (t)--(s);\draw[->] (s)--(r);
+\end{tikzpicture}
+\caption{回聲機器人的事件與回覆流程（自行繪製）}\label{fig:flow}
+\end{figure}
+\clearpage
+\chapter{帳號註冊與 Channel 建立}
+\section{建立官方帳號}
+\begin{enumerate}
+\item 開啟 \url{https://manager.line.biz/}，依畫面登入或註冊 Business ID。可選擇自己的 LINE 帳號或電子郵件方式；完成必要驗證。
+\item 建立新的 LINE 官方帳號，填寫帳號名稱、聯絡資料及介面要求的必要欄位。名稱可使用課程實驗用途，避免冒用品牌。
+\item 完成後在 Official Account Manager 確認帳號存在，並記錄其顯示名稱與識別資訊。先確認登入身分具有管理權限，才能繼續設定。
+\end{enumerate}
+\section{啟用 Messaging API}
+\begin{enumerate}
+\item 在官方帳號管理介面選取剛建立的帳號，開啟「設定」中的「Messaging API」，啟用此功能。此動作會建立對應的 Messaging API Channel。
+\item 若首次使用開發者功能，依畫面登錄開發者姓名與電子郵件。這是開發者資料，不是機器人的公開顯示名稱。
+\item 選擇或建立 Provider。Provider 應對應實際提供服務的個人或組織；若有 LINE Login 等整合需求，先確認是否需使用同一 Provider。
+\item 仔細核對 Provider 再確認啟用。官方文件指出，官方帳號指派 Provider 後無法更換或解除，不能把這一步當成可隨意修改的暫存設定。
+\item 登入 \url{https://developers.line.biz/console/}，選取該 Provider，確認其下出現 Messaging API Channel。
+\end{enumerate}
+\section{確認設定位置與權限}
+在 Channel 的 Basic settings 檢查 Channel ID、名稱與 Channel secret；在 Messaging API 分頁設定 token、Webhook 及加入好友資訊。Channel ID 是識別碼，不能代替 secret 或 token。
+
+如果找不到 Channel，先確認兩個管理平台是否使用相同登入身分、Provider 是否正確，以及帳號是否有管理權限。不要因為介面不同而重複建立多個官方帳號。本文採用官方帳號端啟用 API 的流程，避免沿用過時的直接新增 Messaging API Channel 教學。
+\clearpage
+\chapter{憑證取得與環境設定}
+\section{Channel secret 與 access token}
+Channel secret 是驗證 Webhook 的共享密鑰。進入 Channel 的 Basic settings，取得 Channel secret，保存在伺服器環境變數。收到請求後，使用它計算原始 body 的 HMAC-SHA256，再進行 Base64 編碼，與 X-Line-Signature 比對。
+
+Channel access token 用於授權伺服器呼叫 Messaging API，放在 HTTP Authorization 標頭，格式為 Bearer 加上 token。教學環境可在 Messaging API 分頁的長效 token 區塊發行 token；若已有 token，勿為了複製而反覆重發。正式服務宜評估官方建議的可指定效期 token v2.1 與輪替策略。
+\begin{table}[htbp]
+\centering\caption{憑證用途與設定對照}\label{tab:credentials}
+\begin{tabular}{p{35mm}p{46mm}p{52mm}}\toprule
+資料 & 取得位置 & 用途\\\midrule
+Channel ID & Basic settings & 識別頻道，不可作驗證密鑰\\
+Channel secret & Basic settings & 驗證 Webhook 簽章\\
+Access token & Messaging API／token 發行流程 & 授權回覆 API\\
+Reply token & Webhook 事件 & 單次回覆特定事件\\\bottomrule
+\end{tabular}
+\end{table}
+\section{PowerShell 環境變數}
+使用 Python 3.10 以上版本。範例僅用標準函式庫，無須安裝 Flask 或 LINE SDK。請在啟動程式的同一個終端機設定以下變數；占位文字須替換為自己的真值。
+\begin{lstlisting}[caption={設定環境變數並啟動服務},label={lst:start}]
+$env:LINE_CHANNEL_SECRET = 'YOUR_CHANNEL_SECRET'
+$env:LINE_CHANNEL_ACCESS_TOKEN = 'YOUR_CHANNEL_ACCESS_TOKEN'
+python app.py
+\end{lstlisting}
+環境變數僅對目前終端機及其子程序生效。程式不會自動讀取 .env；隨附 .env.example 只說明欄位。缺少變數時程式會立即退出，避免誤以為空憑證也能完成回覆。
+\section{憑證保護}
+不要把真實憑證放入程式碼、報告、截圖或 Git commit。若曾外洩，應在平台撤銷／重發，更新服務環境後再測試；只刪除檔案無法移除既有 Git 歷史中的秘密。程式紀錄只保留必要錯誤訊息，不輸出聊天內容、Authorization 或 reply token。
+\clearpage
+\chapter{Webhook 設定與測試}
+\section{建立公開 HTTPS 入口}
+本機程式僅監聽 127.0.0.1:8000。LINE 無法連到個人電腦的 localhost，因此開發時需建立公開 HTTPS 通道，正式服務則部署至具有有效憑證的伺服器。
+\begin{enumerate}
+\item 先執行程式碼 \ref{lst:start}，確認看到 Listening 訊息。
+\item 從 \url{https://ngrok.com/docs/} 安裝 ngrok，登入自己的帳號並依官方指引設定 authtoken。不要把 ngrok 的 token 誤當 LINE token。
+\item 另開終端機執行 \texttt{ngrok http 8000}，保持兩個程序持續運作。
+\item 複製 ngrok 顯示的 HTTPS forwarding 網址，後面加上 \texttt{/callback}。例如 \url{https://example.ngrok-free.app/callback} 是格式示意，並非可用端點。
+\item 開啟 Developers Console 的 Channel，於 Messaging API 分頁編輯 Webhook URL，貼上完整網址並儲存。
+\end{enumerate}
+\section{Verify 與手機端驗收}
+點選 Verify 測試連通性，再啟用 Use webhook。Verify 可能傳送 events 為空陣列的請求；程式必須通過簽章驗證並回覆 HTTP 200，不應因缺少訊息就拋出例外。
+
+接著透過 Channel 顯示的 QR code 將官方帳號加入好友。依管理介面的回應設定關閉會與程式重複回覆的自動回應；視需求停用加入好友歡迎訊息。傳送「你好 LINE」，預期收到完全相同的文字。再傳送圖片，範例會略過並回覆 Webhook 200，不會產生文字回聲。
+
+\textbf{兩種成功必須分開確認：}Verify 成功表示端點可接收驗證請求；手機實際收到回覆才證明事件、token 與 Reply API 全部連通。本文未代替讀者登入個人帳號，這兩項須由本人完成。
+\section{為何驗證原始 body}
+簽章以傳輸時的位元組計算，空白、換行或 Unicode 編碼的差異都會改變結果。因此必須先讀取原始 bytes 並驗證，再呼叫 JSON 解析。不能先解析 JSON、重新序列化後才驗證。範例使用固定時間比較函式降低比對過程的資訊洩漏。
+\clearpage
+\chapter{完整範例程式與解說}
+\section{設計與執行流程}
+本實作的接收端與 API 呼叫均使用 Python 標準函式庫。圖 \ref{fig:flow} 對應下列函式：verify\_signature 保護事件來源；reply\_text 建立授權請求；process\_webhook 決定哪些事件需要回覆；make\_handler 將 HTTP POST 轉交核心處理函式。
+
+每個文字事件使用自己的 replyToken。回覆 token 只能使用一次，應收到後立即使用；官方規範要求在收到 Webhook 後一分鐘內使用，重送事件另有條件，不應將 token 當成可長期保存的憑證。程式不盲目重試 API，以避免重複使用 token。
+
+非文字事件、standby 模式或沒有可用 reply token 的事件會略過。驗證成功但 events 為空則直接回覆 200。API 網路失敗回傳 502，部署時可據此觀測錯誤。此同步教學實作未加入事件去重、佇列與資料庫，不應直接當成高流量正式服務。
+\section{接收與回覆程式}
+下列程式直接從交付的 app.py 匯入，左側行號由 listings 自動產生。註解採英文以方便程式碼跨環境顯示，本節以繁體中文補足解說。
+\lstinputlisting[language=Python,caption={app.py：完整 Echo Bot},label={lst:app}]{app.py}
+\section{錯誤處理與部署限制}
+請求路徑限定為 /callback，輸入大小上限為 1 MiB；HTTP body 讀取與對外 API 皆設逾時。錯誤簽章及錯誤資料格式回傳 400。憑證缺漏時於啟動階段中止，避免服務啟動後才發現設定錯誤。
+
+本範例的 HTTPServer 是單一程序的教學伺服器。正式環境應改用可靠的應用框架與伺服器、HTTPS 反向代理、祕密管理與可觀測性機制。若啟用 Webhook redelivery，須以 webhookEventId 設計持久化去重與工作狀態管理；單純把已處理 ID 存入記憶體無法承受重啟，多事件請求部分成功時也可能重複處理。須先完成這些機制再依需求啟用重送。
+\clearpage
+\chapter{測試、排錯與延伸應用}
+\section{離線測試與線上測試的區別}
+執行 \texttt{python -m unittest -v test\_app.py}，測試以假 secret 計算簽章，以 mock 取代對外傳訊，不需 LINE 憑證。涵蓋正常文字回覆、內容遭竄改、缺少簽章、空事件、非文字與 standby 事件、錯誤 JSON 結構、無效 JSON、網路錯誤及輸出請求格式。
+
+離線通過表示核心邏輯符合這些測試案例，仍須以真實帳號、有效憑證、公開 HTTPS 與手機訊息完成端對端驗收。不得以 mock 成功取代真實串接證據。
+\begin{table}[htbp]
+\centering\caption{驗收項目與預期結果}\label{tab:acceptance}
+\begin{tabular}{p{45mm}p{85mm}}\toprule
+操作 & 預期結果\\\midrule
+缺少環境變數啟動 & 顯示缺少設定並退出\\
+官方 Verify & 回覆 200，介面顯示成功\\
+手機傳送文字 & 收到相同文字一次\\
+傳送圖片 & 不產生文字回聲\\
+錯誤簽章 & 400，不呼叫回覆 API\\
+無效 access token & API 失敗，接收端回覆 502\\\bottomrule
+\end{tabular}
+\end{table}
+\section{常見問題排查}
+\begin{longtable}{p{33mm}p{48mm}p{50mm}}
+\caption{Webhook 常見錯誤與處理方式}\label{tab:debug}\\
+\toprule 現象 & 可能原因 & 處理方式\\\midrule\endfirsthead
+\toprule 現象 & 可能原因 & 處理方式\\\midrule\endhead
+Verify 連線失敗 & 本機或 ngrok 未執行 & 確認兩個終端機持續運作\\
+404 & 忘記 /callback 或路徑拼錯 & 修正完整 Webhook URL\\
+400 & secret 錯誤、簽章缺漏、body 被改寫 & 核對 Channel 並保留原始 bytes\\
+502 & token 過期或錯誤、網路失敗、reply token 無效 & 查平台狀態與憑證，不盲目重試\\
+Verify 成功但無訊息 & Use webhook 未開、未加好友 & 啟用設定並用手機實測\\
+收到兩次不同回覆 & 平台自動回應仍啟用 & 檢查官方帳號回應設定\\
+隔天無法連線 & 通道網址更換 & 更新 Console 的 HTTPS 網址\\\bottomrule
+\end{longtable}
+\section{Push、Rich Menu 與 Flex Message}
+Reply 用於回覆事件；Push 可由服務主動發送通知，但仍須遵守可發送對象、方案與用量限制。預約提醒可採 Push，切勿在沒有合法用途與適當告知的情況下大量發送。
+
+Rich Menu 在聊天畫面提供固定入口，適合查詢、預約與客服。Flex Message 以 JSON 描述卡片等介面，適合訂單或活動資訊；可先用官方模擬工具預覽，並提供有意義的替代文字。這些功能不改變接收 Webhook 時必須驗證簽章的原則。
+\clearpage
+\chapter{重現、版本管理與參考資料}
+\section{檔案與編譯方式}
+學號資料夾包含 main.tex、app.py、test\_app.py、.env.example、README.md、編譯後 PDF 與驗證紀錄。Windows 安裝 XeLaTeX 後，在此資料夾執行下列指令三次，使頁碼與四種目錄穩定。
+\begin{lstlisting}[caption={XeLaTeX 編譯命令},label={lst:compile}]
+xelatex -interaction=nonstopmode -halt-on-error -jobname=412630096 main.tex
+\end{lstlisting}
+本文件使用 xeCJK 與 PMingLiU 顯示繁體中文，listings 產生程式行號，TikZ 繪製架構圖，hyperref 建立目錄與交叉引用。若更換作業系統，請將字型名稱改為已安裝且可顯示繁體中文的字型後重新編譯。
+\section{Git 與 GitHub 交付}
+本機以功能分段提交：先建立文件架構與執行說明，再加入機器人與測試，最後完成教學排版及驗證。這些提交包含實際內容變更，不使用空提交湊數。GitHub 上傳需要個人遠端儲存庫；未設定遠端時，應依 README 的指令設定並推送後，在網頁核對提交與檔案。
+
+version-history.txt 記錄實際本機提交，repository.bundle 保存可還原的版本歷史。ZIP 不包含真實憑證；.gitignore 排除 .env 與編譯暫存檔。上傳成功與否以 GitHub 儲存庫的實際紀錄為準，本文件不將本機 commit 等同雲端上傳。
+\section{結論}
+完整串接須同時完成官方帳號啟用、Channel 設定、秘密管理、HTTPS 端點、簽章驗證與訊息回覆。最容易誤判的部分是把 Verify 成功視為所有功能完成；透過離線核心測試與手機端驗收分層檢查，才能定位問題並確認真正的使用者體驗。
+\section{官方參考資料}
+以下資料查閱日期均為 2026 年 11 月 13 日。本文步驟以自行整理方式呈現，架構圖為自行繪製，未使用虛構的操作截圖。
+\begin{enumerate}
+\item LINE Developers，Get started with the Messaging API：\url{https://developers.line.biz/en/docs/messaging-api/getting-started/}。
+\item LINE Developers，Build a bot：\url{https://developers.line.biz/en/docs/messaging-api/building-bot/}。
+\item LINE Developers，Verify webhook signature：\url{https://developers.line.biz/en/docs/messaging-api/verify-webhook-signature/}。
+\item LINE Developers，Messaging API reference（Reply message、Webhook event）：\url{https://developers.line.biz/en/reference/messaging-api/}。
+\item ngrok，官方使用說明：\url{https://ngrok.com/docs/}。
+\end{enumerate}
+\chapter{本文件 LaTeX 原始碼}
+本章使用 lstinputlisting 直接載入 main.tex，讓實際排版來源可供查核。載入的是文字內容，不會遞迴執行其中指令；標題會自動加入程式目錄。修改本文後重新編譯，即可同步更新原始碼清單。
+\lstinputlisting[language={[LaTeX]TeX},caption={main.tex：本文件完整 LaTeX 原始碼},label={lst:source}]{main.tex}
+\end{document}
