@@ -11,3 +11,4 @@ HTTP 錯誤僅記錄狀態碼；連線錯誤獨立分類，不輸出敏感例外
 README 已更新上傳狀態、首次下載與後續推送方式。
 尚未執行真實 LINE Verify、手機回覆與操作截圖；PDF 已列出待實測程序。
 GitHub：https://github.com/Charlotte1107/professional-layout-design
+全部程式碼區塊（含指令與完整 LaTeX 原始碼）已加淺灰底色，保留自動行號。
