@@ -8,3 +8,4 @@ Python 離線測試：9 項全部通過，詳見 test-results.txt。
 官方流程參考網址已列於 PDF 與 README。
 未使用真實 LINE 憑證，尚未完成外部 Webhook 與手機端實測。
 GitHub 指定位置：https://github.com/Charlotte1107/professional-layout-design
+GitHub：已成功推送並核對遠端 main 與本機提交相同。
