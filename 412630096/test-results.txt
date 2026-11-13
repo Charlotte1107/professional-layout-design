@@ -1,0 +1,14 @@
+test_empty_events_verify (test_app.WebhookTests.test_empty_events_verify) ... ok
+test_invalid_structure (test_app.WebhookTests.test_invalid_structure) ... ok
+test_missing_signature_rejected (test_app.WebhookTests.test_missing_signature_rejected) ... ok
+test_network_error_is_502 (test_app.WebhookTests.test_network_error_is_502) ... ok
+test_non_text_and_standby_ignored (test_app.WebhookTests.test_non_text_and_standby_ignored) ... ok
+test_outgoing_reply_request (test_app.WebhookTests.test_outgoing_reply_request) ... ok
+test_signed_invalid_json (test_app.WebhookTests.test_signed_invalid_json) ... ok
+test_signed_text_is_replied (test_app.WebhookTests.test_signed_text_is_replied) ... ok
+test_tampered_body_never_replies (test_app.WebhookTests.test_tampered_body_never_replies) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.002s
+
+OK

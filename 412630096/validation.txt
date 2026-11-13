@@ -1,0 +1,10 @@
+交付驗證紀錄（2026-11-13）
+作者：利蓁琳；學號：412630096；班級：資管系4C；座號：5。
+XeLaTeX 連續三次編譯成功；PDF 共 29 頁，A4。
+四種目錄均有內容；沒有未定義交叉引用、缺字或超出行寬警告。
+封面、正文與程式碼頁已轉為圖片檢查；程式碼有自動行號。
+Python 離線測試：9 項全部通過，詳見 test-results.txt。
+最後一章以 lstinputlisting 載入完整 main.tex，並自動加入程式目錄。
+官方流程參考網址已列於 PDF 與 README。
+未使用真實 LINE 憑證，尚未完成外部 Webhook 與手機端實測。
+GitHub 指定位置：https://github.com/Charlotte1107/professional-layout-design

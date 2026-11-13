@@ -1,7 +1,7 @@
 \documentclass[12pt,a4paper]{report}
 \usepackage{fontspec}
 \usepackage{xeCJK}
-\setCJKmainfont{PMingLiU}
+\setCJKmainfont[AutoFakeBold=2]{PMingLiU}
 \setCJKsansfont{Microsoft JhengHei}
 \setCJKmonofont{PMingLiU}
 \usepackage[margin=25mm,headheight=16pt]{geometry}
@@ -10,6 +10,7 @@
 \usetikzlibrary{arrows.meta,positioning}
 \usepackage{listings}
 \usepackage{fancyhdr}
+\usepackage{xurl}
 \usepackage[unicode,colorlinks=true,linkcolor=teal,urlcolor=blue]{hyperref}
 \definecolor{linegreen}{HTML}{07883F}
 \definecolor{codebg}{HTML}{F3F6F5}
@@ -53,8 +54,8 @@
 \begin{tabular}{rl}
 學號：&412630096\\[5mm]
 姓名：&利蓁琳\\[5mm]
-班級：&\underline{\hspace{45mm}}\\[5mm]
-座號：&\underline{\hspace{45mm}}
+班級：&資管系4C\\[5mm]
+座號：&5
 \end{tabular}
 \vfill
 {\large 2026 年 11 月 13 日\par}
@@ -68,7 +69,7 @@
 
 閱讀順序依實際操作排列：先辨識帳號、Provider 與 Channel，再建立官方帳號並啟用 API，接著設定 secret、token 與 HTTPS 網址，最後啟動程式並執行測試。文件提供流程圖、設定表、錯誤排查表，以及自動產生行號的完整程式碼。
 
-\textbf{實作範圍：}本交付包含可執行程式與離線測試，不含使用者個人的 LINE 帳號、真實憑證、已部署服務或手機端成功截圖。文件中的驗收步驟供取得憑證後操作；不得將預期結果解讀為已完成線上驗證。班級與座號需由本人補填。
+\textbf{實作範圍：}本交付包含可執行程式與離線測試，不含使用者個人的 LINE 帳號、真實憑證、已部署服務或手機端成功截圖。文件中的驗收步驟供取得憑證後操作；不得將預期結果解讀為已完成線上驗證。班級為資管系4C，座號為5。
 
 \textbf{版本基準：}註冊流程於 2026 年 11 月 13 日查閱 LINE 官方文件。服務畫面與方案可能改版，實際名稱以官方管理介面為準。參考資料集中於倒數第二章，最後一章列出本文件完整 LaTeX 原始碼。
 \tableofcontents
@@ -232,18 +233,18 @@ xelatex -interaction=nonstopmode -halt-on-error -jobname=412630096 main.tex
 \end{lstlisting}
 本文件使用 xeCJK 與 PMingLiU 顯示繁體中文，listings 產生程式行號，TikZ 繪製架構圖，hyperref 建立目錄與交叉引用。若更換作業系統，請將字型名稱改為已安裝且可顯示繁體中文的字型後重新編譯。
 \section{Git 與 GitHub 交付}
-本機以功能分段提交：先建立文件架構與執行說明，再加入機器人與測試，最後完成教學排版及驗證。這些提交包含實際內容變更，不使用空提交湊數。GitHub 上傳需要個人遠端儲存庫；未設定遠端時，應依 README 的指令設定並推送後，在網頁核對提交與檔案。
+本機以功能分段提交：先建立文件架構與執行說明，再加入機器人與測試，最後完成教學排版及驗證。這些提交包含實際內容變更，不使用空提交湊數。本作業指定 GitHub 儲存庫為 Charlotte1107/professional-layout-design。完成編譯與驗證後，將本機提交推送至該儲存庫，並核對遠端分支與本機版本一致。
 
-version-history.txt 記錄實際本機提交，repository.bundle 保存可還原的版本歷史。ZIP 不包含真實憑證；.gitignore 排除 .env 與編譯暫存檔。上傳成功與否以 GitHub 儲存庫的實際紀錄為準，本文件不將本機 commit 等同雲端上傳。
+version-history.txt 記錄實際本機提交，repository.bundle 保存可還原的版本歷史。ZIP 不包含真實憑證；.gitignore 排除 .env 與編譯暫存檔。雲端版本可於指定儲存庫查閱；實際推送與檔案完整性結果另記錄於交付驗證紀錄。
 \section{結論}
 完整串接須同時完成官方帳號啟用、Channel 設定、秘密管理、HTTPS 端點、簽章驗證與訊息回覆。最容易誤判的部分是把 Verify 成功視為所有功能完成；透過離線核心測試與手機端驗收分層檢查，才能定位問題並確認真正的使用者體驗。
 \section{官方參考資料}
 以下資料查閱日期均為 2026 年 11 月 13 日。本文步驟以自行整理方式呈現，架構圖為自行繪製，未使用虛構的操作截圖。
 \begin{enumerate}
-\item LINE Developers，Get started with the Messaging API：\url{https://developers.line.biz/en/docs/messaging-api/getting-started/}。
-\item LINE Developers，Build a bot：\url{https://developers.line.biz/en/docs/messaging-api/building-bot/}。
-\item LINE Developers，Verify webhook signature：\url{https://developers.line.biz/en/docs/messaging-api/verify-webhook-signature/}。
-\item LINE Developers，Messaging API reference（Reply message、Webhook event）：\url{https://developers.line.biz/en/reference/messaging-api/}。
+\item LINE Developers，Get started with the Messaging API：\par\noindent\url{https://developers.line.biz/en/docs/messaging-api/getting-started/}。
+\item LINE Developers，Build a bot：\par\noindent\url{https://developers.line.biz/en/docs/messaging-api/building-bot/}。
+\item LINE Developers，Verify webhook signature：\par\noindent\url{https://developers.line.biz/en/docs/messaging-api/verify-webhook-signature/}。
+\item LINE Developers，Messaging API reference（Reply message、Webhook event）：\par\noindent\url{https://developers.line.biz/en/reference/messaging-api/}。
 \item ngrok，官方使用說明：\url{https://ngrok.com/docs/}。
 \end{enumerate}
 \chapter{本文件 LaTeX 原始碼}

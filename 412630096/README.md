@@ -1,6 +1,6 @@
 # LINE Messaging API 註冊申請與 Echo Bot
 作者：利蓁琳｜學號：412630096｜日期：2026-11-13
-班級、座號待本人填入 main.tex 封面。
+班級：資管系4C｜座號：5
 
 ## 編譯
 在本目錄執行三次（Windows 需安裝 MiKTeX、XeLaTeX 及新細明體）：
@@ -29,8 +29,10 @@ python -m unittest -v test_app.py
 ## GitHub
 專案在上層工作區 Git 中版本控管。確認個人 GitHub 儲存庫後，在上層目錄執行：
 ```
-git remote add origin https://github.com/YOUR_ACCOUNT/YOUR_REPO.git
+git remote add origin https://github.com/Charlotte1107/professional-layout-design.git
 git push -u origin HEAD
 ```
 上述是操作說明，不代表已上傳成功。不可提交真正的 secret、token 或 .env。
 ZIP 包含學號資料夾與交付檔案；Git 版本歷史另以學號資料夾中的 version-history.txt 保存可讀紀錄，repository.bundle 保存可還原的 Git 歷史。
+
+指定作業儲存庫：https://github.com/Charlotte1107/professional-layout-design

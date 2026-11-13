@@ -8,3 +8,7 @@ __pycache__/
 *.lol
 *.out
 *.synctex.gz
+
+preview-*.png
+repository.bundle
+version-history.txt
