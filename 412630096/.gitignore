@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.aux
+*.log
+*.toc
+*.lof
+*.lot
+*.lol
+*.out
+*.synctex.gz
