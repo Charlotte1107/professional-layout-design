@@ -1,4 +1,4 @@
-﻿\documentclass[12pt,a4paper]{report}
+\documentclass[12pt,a4paper]{report}
 \usepackage{fontspec}
 \usepackage{xeCJK}
 \setCJKmainfont[AutoFakeBold=2]{DFKai-SB}
@@ -7,13 +7,26 @@
 \usepackage[top=22mm,bottom=22mm,left=22mm,right=22mm]{geometry}
 \usepackage{graphicx,xcolor,booktabs,longtable,array}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
 \usepackage{listings}
+\usepackage{caption}
+\usepackage{needspace}
 
 \usepackage{xurl}
 \usepackage[unicode,hidelinks]{hyperref}
 \definecolor{linegreen}{HTML}{07883F}
-\definecolor{codebg}{HTML}{F0F0F0}
+\definecolor{codebg}{HTML}{F5F7FA}
+\definecolor{ink}{HTML}{24384B}
+\definecolor{accent}{HTML}{326C7A}
+\definecolor{muted}{HTML}{546876}
+\definecolor{border}{HTML}{CBD5DF}
+\definecolor{stringink}{HTML}{854B49}
+\tikzset{card/.style={draw=border,fill=codebg,rounded corners=2mm,
+ align=center,font=\small,minimum height=13mm,inner sep=3mm},
+ flow/.style={-{Stealth[length=2mm]},draw=accent,line width=.8pt},
+ note/.style={font=\footnotesize,align=center,text=muted}}
+\captionsetup{font=small,labelfont=bf}
+\captionsetup[lstlisting]{singlelinecheck=false,skip=9pt}
 \renewcommand{\contentsname}{章節目錄}
 \renewcommand{\listfigurename}{圖目錄}
 \renewcommand{\listtablename}{表目錄}
@@ -27,8 +40,6 @@
 \setlength{\parskip}{0.3em}
 \linespread{1.12}
 \setlength{\emergencystretch}{1em}
-\setlength{\emergencystretch}{1em}
-\setlength{\emergencystretch}{1em}
 % Match the supplied exam: inline chapter number/title, black text, plain footer.
 \makeatletter
 \def\@makechapterhead#1{\vspace*{0pt}{\parindent\z@\raggedright
@@ -36,13 +47,16 @@
 \def\@makeschapterhead#1{\vspace*{0pt}{\parindent\z@\raggedright
  \normalfont\Large\bfseries #1\par\nobreak\vskip 18pt}}
 \makeatother
-\lstset{basicstyle=\ttfamily\fontsize{9.5}{12}\selectfont,
- numbers=left,numberstyle=\tiny,numbersep=8pt,stepnumber=1,
- breaklines=true,breakatwhitespace=false,columns=fullflexible,
- keepspaces=true,showstringspaces=false,frame=none,
- backgroundcolor=\color{codebg},
- keywordstyle=\bfseries,commentstyle=\normalfont\ttfamily,stringstyle=\normalfont\ttfamily,
- captionpos=t,tabsize=4,aboveskip=12pt,belowskip=12pt}
+\lstset{basicstyle=\ttfamily\fontsize{9.5}{12.5}\selectfont\color{ink},
+ numbers=left,numberstyle=\ttfamily\fontsize{7}{9}\selectfont\color{muted},
+ numbersep=10pt,stepnumber=1,breaklines=true,breakatwhitespace=false,
+ columns=fullflexible,keepspaces=true,showstringspaces=false,
+ frame=single,frameround=tttt,framerule=.4pt,rulecolor=\color{border},
+ framesep=7pt,xleftmargin=25pt,xrightmargin=8pt,framexleftmargin=20pt,
+ backgroundcolor=\color{codebg},keywordstyle=\bfseries\color{accent},
+ commentstyle=\normalfont\ttfamily\color{muted},stringstyle=\color{stringink},
+ captionpos=t,tabsize=4,aboveskip=16pt,belowskip=16pt,
+ abovecaptionskip=10pt,belowcaptionskip=8pt}
 \hypersetup{pdftitle={LINE Messaging API 註冊申請與實作},pdfauthor={利蓁琳}}
 \begin{document}
 \begin{titlepage}
@@ -90,7 +104,7 @@
 \addcontentsline{toc}{chapter}{摘要}
 本文件以繁體中文說明 LINE Messaging API 的開通、憑證管理、Webhook 設定，以及接收文字後原文回覆的 Echo Bot。範例直接使用 Python 標準函式庫呼叫 REST API，讓讀者能清楚觀察 HTTP、JSON 與 HMAC 簽章之間的關係，不需安裝第三方 SDK。
 
-閱讀順序依實際操作排列：先辨識帳號、Provider 與 Channel，再建立官方帳號並啟用 API，接著設定 secret、token 與 HTTPS 網址，最後啟動程式並執行測試。文件提供流程圖、設定表、錯誤排查表，以及自動產生行號的完整程式碼。
+閱讀順序依實際操作排列：先辨識帳號、Provider 與 Channel，再建立官方帳號並啟用 API，接著設定 secret、token 與 HTTPS 網址，最後啟動程式並執行測試。文件提供五張自行繪製的架構與操作圖、設定表、錯誤排查表，以及自動產生行號的完整程式碼。
 
 \textbf{實作範圍：}本交付包含可執行程式與離線測試，不含使用者個人的 LINE 帳號、真實憑證、已部署服務或手機端成功截圖。文件中的驗收步驟供取得憑證後操作；不得將預期結果解讀為已完成線上驗證。班級為資管系4C，座號為5。
 
@@ -116,13 +130,13 @@ Messaging API & 檢查 access token 並將回覆送回聊天室\\\bottomrule
 Webhook 是由 LINE 主動發起的 HTTP POST；回覆 API 則由機器人主動向 LINE 發起 HTTPS 請求。兩者是不同方向的連線。將 Webhook 回傳為 200 僅表示事件已被接收，不會自動產生聊天訊息，程式仍須呼叫回覆端點。
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[node distance=9mm,box/.style={draw=black,align=center,text width=97mm,minimum height=10mm},>=Stealth]
+\begin{tikzpicture}[node distance=9mm,box/.style={card,text width=115mm},>=Stealth]
 \node[box] (u) {使用者在 LINE 傳送文字};
 \node[box,below=of u] (l) {LINE 平台：POST 事件與簽章};
 \node[box,below=of l] (t) {公開 HTTPS 網址／ngrok};
 \node[box,below=of t] (s) {本機 /callback：驗證原始位元組、解析 JSON};
 \node[box,below=of s] (r) {呼叫 Reply API，LINE 將文字送回使用者};
-\draw[->] (u)--(l);\draw[->] (l)--(t);\draw[->] (t)--(s);\draw[->] (s)--(r);
+\draw[flow] (u)--(l);\draw[flow] (l)--(t);\draw[flow] (t)--(s);\draw[flow] (s)--(r);
 \end{tikzpicture}
 \caption{回聲機器人的事件與回覆流程（自行繪製）}\label{fig:flow}
 \end{figure}
@@ -142,6 +156,23 @@ Webhook 是由 LINE 主動發起的 HTTP POST；回覆 API 則由機器人主動
 \item 仔細核對 Provider 再確認啟用。官方文件指出，官方帳號指派 Provider 後無法更換或解除，不能把這一步當成可隨意修改的暫存設定。
 \item 登入 \url{https://developers.line.biz/console/}，選取該 Provider，確認其下出現 Messaging API Channel。
 \end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=9mm and 9mm]
+\node[card,text width=40mm] (a) {\textbf{01 登入／註冊}\\Business ID};
+\node[card,text width=40mm,right=of a] (b) {\textbf{02 建立官方帳號}\\Official Account Manager};
+\node[card,text width=40mm,right=of b] (c) {\textbf{03 啟用 API}\\設定 Messaging API};
+\node[card,text width=40mm,below=14mm of c] (d) {\textbf{04 選擇 Provider}\\核對服務所屬組織};
+\node[card,text width=40mm,left=of d] (e) {\textbf{05 確認 Channel}\\Developers Console};
+\node[card,text width=40mm,left=of e] (f) {\textbf{06 設定與驗收}\\憑證、Webhook、回覆};
+\draw[flow] (a)--(b);\draw[flow] (b)--(c);\draw[flow] (c)--(d);
+\draw[flow] (d)--(e);\draw[flow] (e)--(f);
+\node[note,below=5mm of d,text width=46mm] {Provider 確認後無法任意更換，請先核對。};
+\end{tikzpicture}
+\caption{帳號開通與 Channel 建立路線圖（自行繪製）}\label{fig:registration}
+\end{figure}
+
 \section{確認設定位置與權限}
 在 Channel 的 Basic settings 檢查 Channel ID、名稱與 Channel secret；在 Messaging API 分頁設定 token、Webhook 及加入好友資訊。Channel ID 是識別碼，不能代替 secret 或 token。
 
@@ -162,6 +193,18 @@ Access token & Messaging API／token 發行流程 & 授權回覆 API\\
 Reply token & Webhook 事件 & 單次回覆特定事件\\\bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=7mm]
+\node[card,text width=140mm,minimum height=17mm] (a) {\textbf{Channel secret｜確認事件來源}\\LINE 平台與接收端共享，用於 HMAC-SHA256 簽章驗證。};
+\node[card,text width=140mm,minimum height=17mm,below=of a] (b) {\textbf{Access token｜授權呼叫 API}\\機器人伺服器持有，放在 Authorization: Bearer 標頭。};
+\node[card,text width=140mm,minimum height=17mm,below=of b] (c) {\textbf{Reply token｜回覆這一次事件}\\從 Webhook 取得，僅供單次回覆，不能當成長效憑證。};
+\node[note,below=4mm of c] {三者責任不同；不得互相替代，也不要放入公開截圖與版本紀錄。};
+\end{tikzpicture}
+\caption{三種憑證的用途與生命週期概念（自行繪製）}\label{fig:credentials}
+\end{figure}
+
 \section{PowerShell 環境變數}
 使用 Python 3.10 以上版本。範例僅用標準函式庫，無須安裝 Flask 或 LINE SDK。請在啟動程式的同一個終端機設定以下變數；占位文字須替換為自己的真值。
 \begin{lstlisting}[caption={設定環境變數並啟動服務},label={lst:start}]
@@ -189,6 +232,24 @@ python app.py
 接著透過 Channel 顯示的 QR code 將官方帳號加入好友。依管理介面的回應設定關閉會與程式重複回覆的自動回應；視需求停用加入好友歡迎訊息。傳送「你好 LINE」，預期收到完全相同的文字。再傳送圖片，範例會略過並回覆 Webhook 200，不會產生文字回聲。
 
 \textbf{兩種成功必須分開確認：}Verify 成功表示端點可接收驗證請求；手機實際收到回覆才證明事件、token 與 Reply API 全部連通。本文未代替讀者登入個人帳號，這兩項須由本人完成。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1mm,y=1mm]
+\foreach \x/\t in {0/使用者,48/LINE 平台,108/機器人伺服器}{
+ \node[card,minimum width=33mm] at (\x,0) {\t};
+ \draw[dashed,draw=border] (\x,-8)--(\x,-94);
+}
+\draw[flow] (0,-17)--node[above,note]{1. 傳送文字}(48,-17);
+\draw[flow] (48,-33)--node[above,note]{2. POST 事件＋簽章}(108,-33);
+\node[note,anchor=west,text width=32mm] at (109,-43) {先驗證簽章\\再解析 JSON};
+\draw[flow] (108,-57)--node[above,note]{3. Reply API＋token}(48,-57);
+\draw[flow] (48,-73)--node[above,note]{4. 顯示回覆}(0,-73);
+\draw[flow,dashed] (108,-89)--node[above,note]{5. Webhook 回傳 200}(48,-89);
+\end{tikzpicture}
+\caption{文字事件的同步處理時序（自行繪製；步驟 3 成功後才確認接收）}\label{fig:sequence}
+\end{figure}
+
 \section{為何驗證原始 body}
 簽章以傳輸時的位元組計算，空白、換行或 Unicode 編碼的差異都會改變結果。因此必須先讀取原始 bytes 並驗證，再呼叫 JSON 解析。不能先解析 JSON、重新序列化後才驗證。範例使用固定時間比較函式降低比對過程的資訊洩漏。
 \clearpage
@@ -201,9 +262,20 @@ python app.py
 非文字事件、standby 模式或沒有可用 reply token 的事件會略過。驗證成功但 events 為空則直接回覆 200。API 網路失敗回傳 502，部署時可據此觀測錯誤。此同步教學實作未加入事件去重、佇列與資料庫，不應直接當成高流量正式服務。
 \section{接收與回覆程式}
 下列程式直接從交付的 app.py 匯入，左側行號由 listings 自動產生。註解採英文以方便程式碼跨環境顯示，本節以繁體中文補足解說。
-\lstinputlisting[language=Python,caption={app.py：完整 Echo Bot},label={lst:app}]{app.py}
+程式依處理責任分成五段，行號連續對應同一份 app.py，可直接執行交付的完整檔案。
+\Needspace{330pt}
+\lstinputlisting[language=Python,firstline=1,lastline=20,firstnumber=1,caption={app.py：匯入模組與簽章驗證},label={lst:app}]{app.py}
+\Needspace{190pt}
+\lstinputlisting[language=Python,firstline=23,lastline=32,firstnumber=23,caption={app.py：建立回覆 API 請求},label={lst:reply}]{app.py}
+\Needspace{600pt}
+\lstinputlisting[language=Python,firstline=35,lastline=77,firstnumber=35,caption={app.py：解析事件與分類錯誤},label={lst:events}]{app.py}
+\Needspace{490pt}
+\lstinputlisting[language=Python,firstline=78,lastline=111,firstnumber=78,caption={app.py：HTTP 接收端與回應},label={lst:http}]{app.py}
+\Needspace{300pt}
+\lstinputlisting[language=Python,firstline=112,lastline=129,firstnumber=112,caption={app.py：環境檢查與服務啟動},label={lst:main}]{app.py}
+
 \section{程式行號與逐段解說}
-表中行號與程式碼 \ref{lst:app} 對照。可先閱讀核心事件處理，再追蹤驗證與回覆函式，最後確認 HTTP 接收端如何串接。
+表中行號與程式碼 \ref{lst:app} 至 \ref{lst:main} 對照。可先閱讀核心事件處理，再追蹤驗證與回覆函式，最後確認 HTTP 接收端如何串接。
 \begin{longtable}{p{17mm}p{26mm}p{105mm}}
 \caption{app.py 行號與處理責任對照}\\
 \toprule 行號 & 功能 & 說明\\\midrule\endfirsthead
@@ -242,6 +314,19 @@ API 回傳 HTTP 錯誤時，僅記錄狀態碼。例如 401 可優先檢查 acce
 無效 access token & API 失敗，接收端回覆 502\\\bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=8mm]
+\node[card,text width=140mm] (a) {\textbf{第一層：離線與本機 HTTP 測試}\\執行 17 項測試，確認簽章、事件、路徑及錯誤分類。};
+\node[card,text width=140mm,below=of a] (b) {\textbf{第二層：官方 Verify}\\確認 HTTPS、/callback、secret 與 HTTP 200。};
+\node[card,text width=140mm,below=of b] (c) {\textbf{第三層：手機端回覆}\\確認 Use webhook、好友關係、access token 與 Reply API。};
+\draw[flow] (a)--(b);\draw[flow] (b)--(c);
+\node[note,below=4mm of c,text width=140mm] {第一層已通過；第二、三層仍待真實帳號操作。若某層失敗，先排查該層的設定。};
+\end{tikzpicture}
+\caption{從程式邏輯到手機回覆的三層驗收（自行繪製）}\label{fig:testing}
+\end{figure}
+
 \section{線上實測與證據紀錄}
 以下項目需由本人登入 LINE 平台並實際操作，尚未執行。完成後可補入去除敏感資訊的截圖，並記錄時間、操作與觀察結果。
 \begin{enumerate}

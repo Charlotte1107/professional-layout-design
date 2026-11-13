@@ -12,3 +12,5 @@ __pycache__/
 preview-*.png
 repository.bundle
 version-history.txt
+
+preview-*.txt
